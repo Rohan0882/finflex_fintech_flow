@@ -15,18 +15,35 @@ import {
   Heart,
   Palette,
   Trophy,
-  Target
+  Target,
+  Star,
+  Gem,
+  Crown,
+  Zap,
+  Activity,
+  Flower2,
+  X
 } from 'lucide-react';
 import { formatCurrency } from '../utils/finance';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../lib/utils';
-import { FinancialData } from '../types';
+import { FinancialData, RiskProfile } from '../types';
 
 interface CustomerViewProps {
   data: FinancialData | null;
+  profile: RiskProfile | null;
 }
 
-export function CustomerView({ data }: CustomerViewProps) {
+export function CustomerView({ data, profile }: CustomerViewProps) {
+  const [selectedIconId, setSelectedIconId] = React.useState<string | null>(null);
+  const [isIconModalOpen, setIsIconModalOpen] = React.useState(false);
+  const [topUpState, setTopUpState] = React.useState<{
+    isOpen: boolean;
+    status: 'idle' | 'submitting' | 'result';
+    amount: number;
+    isApproved: boolean;
+  }>({ isOpen: false, status: 'idle', amount: 200000, isApproved: false });
+
   // If no data, show placeholder or prompt
   if (!data) {
     return (
@@ -51,19 +68,82 @@ export function CustomerView({ data }: CustomerViewProps) {
     paidMonths: 14,
     interestRate: 10.5,
     nextEmiDate: '05 June 2026',
-    status: 'In Form'
+    status: profile?.score && profile.score > 750 ? 'In Form' : 'Pending'
   };
+
+  const handleApplyTopUp = () => {
+    setTopUpState(prev => ({ ...prev, status: 'submitting' }));
+    
+    // Simulate approval process with realistic factors
+    setTimeout(() => {
+      const creditScore = profile?.score || 0;
+      const dti = profile?.dti || 0;
+      
+      // Calculate pseudo-utilization / financial stress
+      const totalMonthlyObligations = data.existingEmis + (data.otherDebts / 12);
+      const monthlyIncome = data.monthlyIncome + (data.variableIncome / 12);
+      const financialStress = (totalMonthlyObligations / (monthlyIncome || 1)) * 100;
+
+      // Approval criteria:
+      // 1. High Credit Score (>715)
+      // 2. Healthy DTI ratio (<40%)
+      // 3. Low Financial Stress (<45%)
+      const approved = creditScore > 715 && dti < 40 && financialStress < 45;
+      
+      setTopUpState(prev => ({ ...prev, status: 'result', isApproved: approved }));
+    }, 2500);
+  };
+
+  const getMatchStatus = (status: string) => {
+    if (isMale) {
+      return status === 'In Form' ? 'Batting Strong' : 'Ready to Bowl';
+    }
+    if (isFemale) {
+      return status === 'In Form' ? 'Princess Level' : 'Magical Quest';
+    }
+    return status;
+  };
+
+  const personaIcons = {
+    male: [
+      { id: 'trophy', icon: Trophy, label: 'Trophy' },
+      { id: 'target', icon: Target, label: 'Target' },
+      { id: 'award', icon: Award, label: 'Award' },
+      { id: 'zap', icon: Zap, label: 'Power' },
+      { id: 'shield', icon: ShieldCheck, label: 'Defense' },
+      { id: 'activity', icon: Activity, label: 'Stats' },
+    ],
+    female: [
+      { id: 'sparkles', icon: Sparkles, label: 'Sparkle' },
+      { id: 'heart', icon: Heart, label: 'Heart' },
+      { id: 'star', icon: Star, label: 'Star' },
+      { id: 'gem', icon: Gem, label: 'Gem' },
+      { id: 'crown', icon: Crown, label: 'Crown' },
+      { id: 'flower', icon: Flower2, label: 'Flower' },
+    ]
+  };
+
+  const getCurrentIcon = () => {
+    const palette = isMale ? personaIcons.male : personaIcons.female;
+    if (selectedIconId) {
+      return palette.find(i => i.id === selectedIconId)?.icon || (isMale ? Trophy : Sparkles);
+    }
+    return isMale ? (activeLoan.status === 'In Form' ? Trophy : Target) : isFemale ? Sparkles : ShieldCheck;
+  };
+
+  const CurrentThemeIcon = getCurrentIcon();
 
   const progressPercentage = (activeLoan.paidMonths / activeLoan.tenure) * 100;
 
   // Theme Config
   const theme = {
-    primary: isMale ? 'bg-emerald-800' : isFemale ? 'bg-pink-400' : 'bg-slate-900',
-    secondary: isMale ? 'bg-emerald-900' : isFemale ? 'bg-pink-500' : 'bg-slate-800',
+    primary: isMale ? (activeLoan.status === 'In Form' ? 'bg-emerald-800' : 'bg-blue-800') : isFemale ? 'bg-pink-400' : 'bg-slate-900',
+    secondary: isMale ? (activeLoan.status === 'In Form' ? 'bg-emerald-900' : 'bg-blue-900') : isFemale ? 'bg-pink-500' : 'bg-slate-800',
     accent: isMale ? 'text-yellow-400' : isFemale ? 'text-white' : 'text-blue-400',
-    border: isMale ? 'border-emerald-700' : isFemale ? 'border-pink-300' : 'border-slate-700',
+    border: isMale ? (activeLoan.status === 'In Form' ? 'border-emerald-700' : 'border-blue-700') : isFemale ? 'border-pink-300' : 'border-slate-700',
     text: isMale ? 'text-emerald-50' : isFemale ? 'text-pink-50' : 'text-slate-50',
-    icon: isMale ? Trophy : isFemale ? Sparkles : ShieldCheck,
+    statusColor: isMale ? (activeLoan.status === 'In Form' ? 'bg-yellow-400 text-emerald-950' : 'bg-blue-400 text-white') : 'bg-white text-pink-500',
+    icon: CurrentThemeIcon,
     label1: isMale ? 'Current Score (Outstanding)' : isFemale ? 'Magic Balance' : 'Outstanding',
     label2: isMale ? 'Required Run Rate (EMI)' : isFemale ? 'Sparkle Payment' : 'Monthly EMI',
     label3: isMale ? 'Pitch Progress' : isFemale ? 'Royal Journey' : 'Repayment Progress',
@@ -88,6 +168,18 @@ export function CustomerView({ data }: CustomerViewProps) {
             <h2 className={cn("text-4xl font-black tracking-tighter", isMale ? "text-emerald-900 uppercase italic" : isFemale ? "text-pink-600" : "text-slate-800")}>
               {isMale ? "Match Day Center" : isFemale ? "My Princess Dashboard" : "Active Loan Dashboard"}
             </h2>
+            <button 
+              onClick={() => setIsIconModalOpen(true)}
+              className={cn(
+                "p-1.5 rounded-full transition-all hover:rotate-12",
+                isMale ? "bg-emerald-100 text-emerald-700 hover:bg-emerald-200" : 
+                isFemale ? "bg-pink-100 text-pink-500 hover:bg-pink-200" : 
+                "bg-slate-100 text-slate-500 hover:bg-slate-200"
+              )}
+              title="Personalize Theme Icon"
+            >
+              <Palette className="w-4 h-4" />
+            </button>
           </div>
           <p className={cn("text-sm font-bold", isMale ? "text-emerald-700" : isFemale ? "text-pink-400" : "text-slate-500")}>
             Welcome back, {data.name}. {isMale ? "You're batting strongly on this pitch!" : isFemale ? "Your kingdom's treasury is looking magical!" : "Your repayments are up to date."}
@@ -157,17 +249,54 @@ export function CustomerView({ data }: CustomerViewProps) {
                   </div>
                 </div>
 
-                <div className="space-y-3">
+                <div className="space-y-4">
                   <div className="flex justify-between items-end">
                     <p className="text-[10px] font-black uppercase tracking-widest opacity-60">{theme.label3}</p>
                     <span className="text-[10px] font-mono font-bold">{activeLoan.paidMonths}/{activeLoan.tenure} {isMale ? "Overs" : isFemale ? "Steps" : "Months"}</span>
                   </div>
-                  <div className={cn("h-4 rounded-full overflow-hidden p-1", theme.secondary)}>
-                    <motion.div 
-                      initial={{ width: 0 }}
-                      animate={{ width: `${progressPercentage}%` }}
-                      className={cn("h-full rounded-full shadow-inner", isMale ? "bg-yellow-400" : isFemale ? "bg-gradient-to-r from-pink-300 to-white" : "bg-blue-500")}
-                    />
+                  <div className={cn("relative h-6 group/progress flex items-center gap-[1px]", theme.secondary, "rounded-lg p-1 overflow-visible")}>
+                    {Array.from({ length: activeLoan.tenure }).map((_, i) => {
+                      const isPaid = i < activeLoan.paidMonths;
+                      const cumulativePaid = (i + 1) * activeLoan.emi;
+                      
+                      return (
+                        <div 
+                          key={i}
+                          className={cn(
+                            "h-full flex-1 first:rounded-l-sm last:rounded-r-sm transition-all duration-300 relative group/segment",
+                            isPaid 
+                              ? (isMale ? "bg-yellow-400" : isFemale ? "bg-white" : "bg-blue-500") 
+                              : "bg-white/10 hover:bg-white/20"
+                          )}
+                        >
+                          {/* Tooltip */}
+                          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 pointer-events-none opacity-0 group-hover/segment:opacity-100 transition-opacity z-50">
+                            <div className={cn(
+                              "px-3 py-1.5 rounded-lg text-[9px] font-black whitespace-nowrap shadow-xl border",
+                              isMale ? "bg-emerald-950 text-yellow-400 border-emerald-800" : 
+                              isFemale ? "bg-pink-500 text-white border-pink-400" : 
+                              "bg-slate-900 text-white border-slate-800"
+                            )}>
+                              <p className="uppercase tracking-tighter opacity-70">
+                                {isPaid ? (isMale ? "Run Scored" : "Magic Gained") : (isMale ? "Target Run" : "Dream Cost")}
+                              </p>
+                              <p className="text-sm">{formatCurrency(activeLoan.emi)}</p>
+                              {isPaid && (
+                                <p className="mt-1 pt-1 border-t border-white/10 text-[8px] opacity-60">
+                                  Total: {formatCurrency(cumulativePaid)}
+                                </p>
+                              )}
+                            </div>
+                            <div className={cn(
+                              "w-2 h-2 rotate-45 mx-auto -mt-1 border-r border-b",
+                              isMale ? "bg-emerald-950 border-emerald-800" : 
+                              isFemale ? "bg-pink-500 border-pink-400" : 
+                              "bg-slate-900 border-slate-800"
+                            )}></div>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               </div>
@@ -184,7 +313,11 @@ export function CustomerView({ data }: CustomerViewProps) {
                     </span>
                   </div>
                   <p className="text-4xl font-black tracking-tighter">{activeLoan.nextEmiDate}</p>
-                  <p className="text-xs opacity-60 mt-2 font-bold uppercase tracking-widest">{isMale ? "Defend your wicket" : isFemale ? "A magical debit" : "Upcoming EMI"}</p>
+                  <div className="flex items-center justify-between mt-2">
+                    <span className={cn("text-[10px] px-3 py-1 rounded-full font-black uppercase", theme.statusColor)}>
+                      {getMatchStatus(activeLoan.status)}
+                    </span>
+                  </div>
                 </div>
                 <button className={cn(
                   "w-full mt-8 py-4 font-black text-sm uppercase tracking-widest transition-all shadow-2xl",
@@ -248,7 +381,7 @@ export function CustomerView({ data }: CustomerViewProps) {
               </div>
               <div>
                 <p className={cn("text-lg font-black uppercase italic", isMale ? "text-yellow-400" : "text-white")}>
-                  {isMale ? "In Form!" : "Legendary!"}
+                  {getMatchStatus(activeLoan.status)}!
                 </p>
                 <p className="text-[10px] opacity-70 leading-relaxed font-bold">
                   {isMale ? "Your batting consistency is world-class. No dismissals likely." : "You're the most sparkly borrower in the kingdom!"}
@@ -264,15 +397,24 @@ export function CustomerView({ data }: CustomerViewProps) {
             <div className="space-y-3">
               {[
                 { icon: <CreditCard className="w-4 h-4" />, label: 'Auto-Debit Net', desc: 'Secure connection' },
-                { icon: <ArrowUpRight className="w-4 h-4" />, label: 'Top-up Powerplay', desc: '₹2L extra pre-approved' },
+                { 
+                  icon: <ArrowUpRight className="w-4 h-4" />, 
+                  label: isMale ? 'Top-up Powerplay' : isFemale ? 'Magic Top-up' : 'Top-up Eligibility', 
+                  desc: '₹2L extra pre-approved',
+                  onClick: () => setTopUpState(s => ({ ...s, isOpen: true }))
+                },
                 { icon: <ShieldCheck className="w-4 h-4" />, label: 'Injury Insurance', desc: 'Full active cover' },
               ].map((tool, i) => (
-                <div key={i} className={cn(
-                  "p-4 flex items-center gap-4 cursor-pointer transition-all border group",
-                  isMale ? "border-emerald-100 hover:bg-emerald-900 hover:text-white rounded-none" : 
-                  isFemale ? "border-pink-50 hover:bg-pink-50 rounded-2xl" : 
-                  "rounded-xl border-slate-100"
-                )}>
+                <div 
+                  key={i} 
+                  onClick={tool.onClick}
+                  className={cn(
+                    "p-4 flex items-center gap-4 cursor-pointer transition-all border group",
+                    isMale ? "border-emerald-100 hover:bg-emerald-900 hover:text-white rounded-none" : 
+                    isFemale ? "border-pink-50 hover:bg-pink-50 rounded-2xl" : 
+                    "rounded-xl border-slate-100"
+                  )}
+                >
                   <div className={cn(
                     "w-10 h-10 flex items-center justify-center rounded-lg transition-all",
                     isMale ? "bg-emerald-50 text-emerald-600 group-hover:bg-yellow-400 group-hover:text-emerald-950" : 
@@ -307,6 +449,206 @@ export function CustomerView({ data }: CustomerViewProps) {
           </motion.div>
         </div>
       </div>
+
+      {/* Top-up Loan Modal */}
+      <AnimatePresence>
+        {topUpState.isOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+              onClick={() => setTopUpState(s => ({ ...s, isOpen: false, status: 'idle' }))}
+            />
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              className={cn(
+                "relative w-full max-w-lg p-8 shadow-2xl",
+                isMale ? "bg-emerald-900 text-white rounded-none border-4 border-yellow-400" : 
+                isFemale ? "bg-white rounded-[3rem] border-4 border-pink-200" : 
+                "bg-white rounded-2xl"
+              )}
+            >
+              {topUpState.status === 'idle' && (
+                <div className="space-y-6">
+                  <div className="flex items-center gap-4">
+                    <div className={cn("w-12 h-12 rounded-full flex items-center justify-center", isMale ? "bg-yellow-400 text-emerald-950" : "bg-pink-100 text-pink-500")}>
+                      <ArrowUpRight className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-black uppercase tracking-tighter">
+                        {isMale ? "Request Powerplay Funds" : isFemale ? "Whisk Up More Magic" : "Apply for Top-up"}
+                      </h3>
+                      <p className="text-sm opacity-60 font-bold">
+                        {isMale ? "Add weight to your batting lineup." : "Expand your королевская сокровищница."}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className={cn("p-6 rounded-2xl border", isMale ? "bg-emerald-950 border-emerald-800" : "bg-slate-50 border-slate-100")}>
+                    <p className="text-[10px] font-black uppercase tracking-widest opacity-60 mb-2">Maximum Eligibility</p>
+                    <p className={cn("text-4xl font-black", theme.accent)}>{formatCurrency(topUpState.amount)}</p>
+                    <div className="mt-4 flex items-center gap-2">
+                       <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                       <p className="text-[10px] font-bold">Based on your {profile?.score} CIBIL Score</p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <button 
+                      onClick={handleApplyTopUp}
+                      className={cn(
+                        "w-full py-4 font-black uppercase text-sm tracking-[0.2em] transition-all shadow-xl",
+                        isMale ? "bg-yellow-400 text-emerald-950 hover:bg-white" : 
+                        isFemale ? "bg-pink-500 text-white rounded-full hover:scale-105" : 
+                        "btn-primary"
+                      )}
+                    >
+                      Process Application
+                    </button>
+                    <button 
+                      onClick={() => setTopUpState(s => ({ ...s, isOpen: false }))}
+                      className="w-full py-2 text-xs font-bold uppercase opacity-50 hover:opacity-100 transition-opacity"
+                    >
+                      Maybe Later
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {topUpState.status === 'submitting' && (
+                <div className="text-center py-12 space-y-6">
+                  <motion.div 
+                    animate={{ rotate: 360 }}
+                    transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
+                    className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full mx-auto"
+                  />
+                  <div>
+                    <h3 className="text-xl font-black uppercase">Analyzing Stats...</h3>
+                    <p className="text-sm opacity-60 mt-1">Reviewing your repayment history against the pitch.</p>
+                  </div>
+                </div>
+              )}
+
+              {topUpState.status === 'result' && (
+                <div className="text-center py-6 space-y-8">
+                  <div className={cn(
+                    "w-20 h-20 rounded-full mx-auto flex items-center justify-center shadow-2xl",
+                    topUpState.isApproved 
+                      ? (isMale ? "bg-emerald-500 text-white" : "bg-emerald-100 text-emerald-600")
+                      : (isMale ? "bg-rose-500 text-white" : "bg-rose-100 text-rose-600")
+                  )}>
+                    {topUpState.isApproved ? <CheckCircle2 className="w-10 h-10" /> : <AlertCircle className="w-10 h-10" />}
+                  </div>
+
+                  <div>
+                    <h3 className="text-2xl font-black uppercase tracking-tighter">
+                      {topUpState.isApproved 
+                        ? (isMale ? "Decision: Boundary Cleared!" : "Grant Approved!") 
+                        : (isMale ? "Decision: Out!" : "Try Again Later")}
+                    </h3>
+                    <p className={cn("text-sm opacity-70 mt-2 font-bold max-w-xs mx-auto", isFemale ? "text-slate-600" : "")}>
+                       {topUpState.isApproved 
+                         ? `Success! An additional ${formatCurrency(topUpState.amount)} has been credited to your linked bank account.`
+                         : `Unfortunately, based on your current stats, we cannot approve a top-up at this moment. Maintain your 'In Form' status to retry in 30 days.`}
+                    </p>
+                  </div>
+
+                  <button 
+                    onClick={() => setTopUpState(s => ({ ...s, isOpen: false, status: 'idle' }))}
+                    className={cn(
+                      "px-8 py-3 font-black uppercase text-xs tracking-widest",
+                      isMale ? "bg-emerald-950 text-white" : isFemale ? "bg-pink-500 text-white rounded-full" : "btn-primary"
+                    )}
+                  >
+                    Return to Field
+                  </button>
+                </div>
+              )}
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Icon Selection Modal */}
+      <AnimatePresence>
+        {isIconModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+              onClick={() => setIsIconModalOpen(false)}
+            />
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              className={cn(
+                "relative w-full max-w-md p-8 shadow-2xl",
+                isMale ? "bg-emerald-900 text-white rounded-none border-4 border-yellow-400" : 
+                isFemale ? "bg-white rounded-[3rem] border-4 border-pink-200 text-slate-800" : 
+                "bg-white rounded-2xl"
+              )}
+            >
+              <div className="flex justify-between items-center mb-8">
+                <h3 className="text-xl font-black uppercase tracking-tighter">
+                  {isMale ? "Select Your Emblem" : isFemale ? "Choose Your Trinket" : "Select Dashboard Icon"}
+                </h3>
+                <button onClick={() => setIsIconModalOpen(false)} className="opacity-50 hover:opacity-100 transition-opacity">
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+
+              <div className="grid grid-cols-3 gap-4">
+                {(isMale ? personaIcons.male : personaIcons.female).map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => {
+                        setSelectedIconId(item.id);
+                        setIsIconModalOpen(false);
+                      }}
+                      className={cn(
+                        "p-6 flex flex-col items-center gap-3 transition-all border-2",
+                        selectedIconId === item.id 
+                          ? (isMale ? "border-yellow-400 bg-emerald-800" : "border-pink-500 bg-pink-50")
+                          : (isMale ? "border-emerald-800 hover:bg-emerald-800/50" : "border-slate-50 hover:bg-slate-50"),
+                        isMale ? "rounded-none" : "rounded-2xl"
+                      )}
+                    >
+                      <Icon className={cn(
+                        "w-8 h-8",
+                        selectedIconId === item.id 
+                          ? (isMale ? "text-yellow-400" : "text-pink-500")
+                          : (isMale ? "text-emerald-400" : "text-slate-400")
+                      )} />
+                      <span className="text-[10px] font-black uppercase tracking-widest">{item.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              <div className="mt-8 text-center">
+                <button 
+                  onClick={() => {
+                    setSelectedIconId(null);
+                    setIsIconModalOpen(false);
+                  }}
+                  className="text-xs font-bold uppercase opacity-50 hover:opacity-100 transition-opacity"
+                >
+                  Reset to Default
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

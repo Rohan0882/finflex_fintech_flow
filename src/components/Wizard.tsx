@@ -99,9 +99,9 @@ export function FinancialWizard({ onComplete }: WizardProps) {
             <div className="space-y-2">
               <h2 className="text-2xl font-bold flex items-center gap-2">
                 <Plus className="text-indigo-600" />
-                The Vibe Check
+                Let's get to know you
               </h2>
-              <p className="text-slate-500">First things first, who's checking their stats?</p>
+              <p className="text-slate-500">How should we address you and customize your experience?</p>
             </div>
 
             <div className="grid gap-4">
@@ -149,9 +149,9 @@ export function FinancialWizard({ onComplete }: WizardProps) {
             <div className="space-y-2">
               <h2 className="text-2xl font-bold flex items-center gap-2">
                 <Wallet className="text-indigo-600" />
-                The Bag
+                Your Earnings
               </h2>
-              <p className="text-slate-500">How much are you bringing in every month?</p>
+              <p className="text-slate-500">Provide your monthly earnings to help us calculate your capacity.</p>
             </div>
 
             <div className="grid gap-4">
@@ -190,9 +190,9 @@ export function FinancialWizard({ onComplete }: WizardProps) {
             <div className="space-y-2">
               <h2 className="text-2xl font-bold flex items-center gap-2">
                 <TrendingDown className="text-pink-600" />
-                The Spend
+                Monthly Expenses
               </h2>
-              <p className="text-slate-500">What's leaving your account? Be real.</p>
+              <p className="text-slate-500">List your monthly commitments to see what's left for a new EMI.</p>
             </div>
 
             <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2">
@@ -359,7 +359,7 @@ export function FinancialWizard({ onComplete }: WizardProps) {
             onClick={() => onComplete(data)}
             className="btn-primary flex items-center gap-2 shadow-xl shadow-indigo-100"
           >
-            Check the Vibe <CheckCircle2 className="w-4 h-4" />
+            Calculate Affordability <CheckCircle2 className="w-4 h-4" />
           </button>
         ) : (
           <button 

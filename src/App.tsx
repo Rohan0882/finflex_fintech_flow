@@ -39,17 +39,17 @@ export default function App() {
       <nav className="w-64 bg-white border-r border-slate-200 flex flex-col flex-shrink-0">
         <div className="p-6">
           <div className="flex items-center gap-2 mb-8">
-            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold">F</div>
-            <h1 className="text-xl font-bold tracking-tight text-slate-800">FinFlex</h1>
+            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold">L</div>
+            <h1 className="text-xl font-bold tracking-tight text-slate-950">LoanSphere</h1>
           </div>
           
           <div className="space-y-1">
             {[
-              { id: 'wizard', icon: <LayoutDashboard className="w-4 h-4" />, label: 'Vibe Check', no: '01' },
-              { id: 'dashboard', icon: <Activity className="w-4 h-4" />, label: 'The Stacks', no: '02' },
-              { id: 'insights', icon: <FileText className="w-4 h-4" />, label: 'Cash Flow', no: '03' },
-              { id: 'risk', icon: <Layers className="w-4 h-4" />, label: 'Red Flags', no: '04' },
-              { id: 'customer', icon: <Shield className="w-4 h-4" />, label: 'My Flex', no: '05' },
+              { id: 'wizard', icon: <LayoutDashboard className="w-4 h-4" />, label: 'EMI Engine', no: '01' },
+              { id: 'dashboard', icon: <Activity className="w-4 h-4" />, label: 'Lead Dashboard', no: '02' },
+              { id: 'insights', icon: <FileText className="w-4 h-4" />, label: 'Loan Results', no: '03' },
+              { id: 'risk', icon: <Layers className="w-4 h-4" />, label: 'Risk Map', no: '04' },
+              { id: 'customer', icon: <Shield className="w-4 h-4" />, label: 'Customer View', no: '05' },
             ].map((item, idx) => (
               <div 
                 key={item.id}
@@ -138,8 +138,8 @@ export default function App() {
                 className="py-12"
               >
                 <div className="max-w-2xl mx-auto px-6 mb-8 text-center">
-                  <h2 className="text-3xl font-black text-slate-800 tracking-tight">FinFlex Vibe Check</h2>
-                  <p className="text-sm text-slate-500 mt-2">Enter your financial vitals to see if the math is mathing.</p>
+                  <h2 className="text-3xl font-black text-slate-800 tracking-tight">EMI Affordability Engine</h2>
+                  <p className="text-sm text-slate-500 mt-2">Enter your financial vitals to run the score.</p>
                 </div>
                 <FinancialWizard onComplete={handleWizardComplete} />
               </motion.div>
@@ -151,7 +151,7 @@ export default function App() {
                 exit={{ opacity: 0, scale: 0.99 }}
                 className="p-8"
               >
-                <CustomerView data={data} />
+                <CustomerView data={data} profile={profile} />
               </motion.div>
             ) : (
               <motion.div

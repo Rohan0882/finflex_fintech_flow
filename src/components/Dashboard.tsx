@@ -144,7 +144,7 @@ export function Dashboard({ data, profile, onReset }: DashboardProps) {
 
   const rawLenders = [
     { 
-      name: 'Stan Chart (OG)', 
+      name: 'Standard Chartered', 
       rate: 7.99, 
       tenure: data.loanRequirement.tenureYears, 
       color: 'text-emerald-700',
@@ -152,7 +152,7 @@ export function Dashboard({ data, profile, onReset }: DashboardProps) {
       details: { fees: '0.5%', prepayment: 'Nil foreclosure charges', eligibility: 'CIBIL > 750, Salaried' }
     },
     { 
-      name: 'Axis Swift (Digital)', 
+      name: 'Axis Digital Finance', 
       rate: 8.45, 
       tenure: data.loanRequirement.tenureYears, 
       color: 'text-rose-700',
@@ -160,7 +160,7 @@ export function Dashboard({ data, profile, onReset }: DashboardProps) {
       details: { fees: '1% + Tax', prepayment: '2% if closed within 1yr', eligibility: 'Min income ₹30k/mo' }
     },
     { 
-      name: 'HDFC (No Cap)', 
+      name: 'HDFC Instant Loan', 
       rate: 8.70, 
       tenure: data.loanRequirement.tenureYears, 
       color: 'text-blue-700',
@@ -168,7 +168,7 @@ export function Dashboard({ data, profile, onReset }: DashboardProps) {
       details: { fees: '₹1,499 flat', prepayment: '1% of outstanding principal', eligibility: 'Min age 23' }
     },
     { 
-      name: 'ICICI (Smart Flex)', 
+      name: 'ICICI Smart Borrow', 
       rate: 9.10, 
       tenure: data.loanRequirement.tenureYears, 
       color: 'text-orange-700',
@@ -176,7 +176,7 @@ export function Dashboard({ data, profile, onReset }: DashboardProps) {
       details: { fees: 'Max 2.5%', prepayment: 'Nil after 6 EMIs', eligibility: 'Existing customer preferred' }
     },
     { 
-      name: 'Bajaj (Fast Stacks)', 
+      name: 'Bajaj Finserv Plus', 
       rate: 11.25, 
       tenure: data.loanRequirement.tenureYears, 
       color: 'text-blue-900',
@@ -224,13 +224,13 @@ export function Dashboard({ data, profile, onReset }: DashboardProps) {
         <div className="glass-card p-6">
           <h2 className="text-lg font-bold mb-6 flex items-center gap-2">
             <span className="w-1.5 h-6 bg-blue-600 rounded-full"></span>
-            FinFlex Vibe Hub
+            EMI Affordability Engine
           </h2>
           
           <div className="space-y-6">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-tight">Requested Bread</label>
+                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-tight">Loan Amount Request</label>
                 <div className="text-xl font-mono font-bold text-slate-800 p-3 bg-slate-50 border border-slate-200 rounded-lg">
                   {formatCurrency(data.loanRequirement.amount)}
                 </div>
@@ -260,22 +260,22 @@ export function Dashboard({ data, profile, onReset }: DashboardProps) {
 
           <div className="mt-8 pt-6 border-t border-slate-100 flex items-center justify-between">
             <div>
-              <p className="text-sm text-slate-500 font-medium tracking-tight uppercase">Monthly Damage (EMI)</p>
+              <p className="text-sm text-slate-500 font-medium tracking-tight uppercase">Projected Monthly EMI</p>
               <p className="text-3xl font-mono font-black text-slate-800 tracking-tighter">{formatCurrency(currentEmi)}</p>
             </div>
             <div className="text-right">
               {profile.category !== RiskCategory.HIGH ? (
                 <>
-                  <p className="text-[10px] font-bold text-emerald-600 uppercase mb-1">✓ W Choice</p>
+                  <p className="text-[10px] font-bold text-emerald-600 uppercase mb-1">✓ Sustainable Choice</p>
                   <p className="text-[11px] text-slate-500 leading-snug lg:max-w-[180px]">
-                    Gucci! Well within your monthly surplus.
+                    Well within your monthly surplus of {formatCurrency(profile.disposableIncome)}.
                   </p>
                 </>
               ) : (
                 <>
-                  <p className="text-[10px] font-bold text-rose-600 uppercase mb-1">⚠ Massive Red Flag</p>
+                  <p className="text-[10px] font-bold text-rose-600 uppercase mb-1">⚠ High Risk Load</p>
                   <p className="text-[11px] text-slate-500 leading-snug lg:max-w-[180px]">
-                    This is pushing it. The math ain't mathing.
+                    This exceeds your recommended DTI threshold.
                   </p>
                 </>
               )}
@@ -460,7 +460,7 @@ export function Dashboard({ data, profile, onReset }: DashboardProps) {
         <div className="bg-orange-50 border border-orange-200 rounded-2xl p-4 flex gap-4">
           <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center text-orange-600 text-lg flex-shrink-0 mt-1">!</div>
           <div className="space-y-1">
-             <p className="text-xs font-bold text-orange-800 uppercase tracking-tight">The Tea ☕</p>
+             <p className="text-xs font-bold text-orange-800 uppercase tracking-tight">AI Advisor Insight</p>
              <p className="text-[10px] text-orange-700 leading-relaxed font-medium">
                {profile.recommendations[0] || "Your debt profile suggests you could save by consolidating existing debts into this new loan product."}
              </p>
