@@ -1,0 +1,10 @@
+{
+  "name": "FinFlex",
+  "description": "Smart loan affordability and vibe-check engine for the modern generation.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "Financial modeling",
+    "Data visualization",
+    "Risk assessment"
+  ]
+}
