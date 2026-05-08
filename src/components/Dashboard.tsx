@@ -51,7 +51,8 @@ function LoanRow({ lender, data, emi }: LoanRowProps) {
 
   return (
     <React.Fragment>
-      <tr className="hover:bg-slate-50/80 transition-colors group cursor-pointer" onClick={() => setIsExpanded(!isExpanded)}>
+      {/* Desktop Row */}
+      <tr className="hidden md:table-row hover:bg-slate-50/80 transition-colors group cursor-pointer" onClick={() => setIsExpanded(!isExpanded)}>
         <td className="px-6 py-4 text-sm font-bold text-slate-800">
           <div className="flex flex-col gap-1">
             <div className="flex items-center gap-2">
@@ -95,13 +96,92 @@ function LoanRow({ lender, data, emi }: LoanRowProps) {
           </div>
         </td>
       </tr>
+
+      {/* Mobile Card */}
+      <div className={cn(
+        "md:hidden p-4 border-b border-slate-100 space-y-4",
+        isExpanded ? "bg-slate-50" : "bg-white"
+      )}>
+        <div className="flex justify-between items-start" onClick={() => setIsExpanded(!isExpanded)}>
+          <div className="flex flex-col gap-1">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-bold text-slate-800">{lender.name}</span>
+              <ArrowRight className={cn("w-3 h-3 transition-transform text-slate-400", isExpanded && "rotate-90")} />
+            </div>
+            {lender.preApproved && (
+              <div className="flex items-center gap-1">
+                <span className="flex h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse"></span>
+                <span className="text-[8px] font-black uppercase text-blue-600 tracking-tighter">Pre-Approved</span>
+              </div>
+            )}
+          </div>
+          <div className="text-right">
+            <p className={cn("text-sm font-mono font-bold", lender.color)}>{lender.rate}%</p>
+            <p className="text-sm font-mono font-black text-slate-800">{formatCurrency(emi)}</p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div className="flex items-center gap-2 border border-slate-100 rounded-lg p-2 bg-white">
+            <ImpactIcon className={cn("w-4 h-4", impactColor)} />
+            <div className="flex flex-col">
+              <span className={cn("text-[8px] font-black uppercase tracking-tighter", impactColor)}>{impactCategory}</span>
+              <span className="text-[9px] text-slate-500 font-bold">{newDti.toFixed(1)}% DTI</span>
+            </div>
+          </div>
+          <div className="flex items-center justify-center border border-slate-100 rounded-lg p-2 bg-white">
+            <span className="text-xs text-slate-600 font-bold">{lender.tenure} Years</span>
+          </div>
+        </div>
+
+        {isExpanded && (
+           <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="space-y-3 pt-2"
+           >
+              <div className="grid grid-cols-2 gap-4 text-[10px]">
+                <div className="space-y-1">
+                  <p className="font-bold text-slate-400 uppercase tracking-tighter">Fees</p>
+                  <p className="text-slate-700">{lender.details.fees}</p>
+                </div>
+                <div className="space-y-1">
+                  <p className="font-bold text-slate-400 uppercase tracking-tighter">Prepayment</p>
+                  <p className="text-slate-700">{lender.details.prepayment}</p>
+                </div>
+              </div>
+              <div className="space-y-1 text-[10px]">
+                <p className="font-bold text-slate-400 uppercase tracking-tighter">Eligibility</p>
+                <p className="text-slate-700">{lender.details.eligibility}</p>
+              </div>
+           </motion.div>
+        )}
+
+        <div className="flex gap-2 pt-2">
+            <button 
+              onClick={(e) => { e.stopPropagation(); alert(`Redirecting to ${lender.name} detailed product page...`); }}
+              className="flex-1 bg-white border border-slate-200 text-slate-600 px-4 py-2 rounded-lg text-xs font-bold hover:bg-slate-100 transition-all shadow-sm"
+            >
+              Learn More
+            </button>
+            <button 
+              onClick={(e) => { e.stopPropagation(); alert(`Redirecting to ${lender.name} application portal...`); }}
+              className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-blue-700 transition-all shadow-sm"
+            >
+              Apply Now
+            </button>
+        </div>
+      </div>
+
+      {/* Desktop Expanded Details */}
       <AnimatePresence>
         {isExpanded && (
           <motion.tr
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="bg-slate-50/30"
+            className="hidden md:table-row bg-slate-50/30"
           >
             <td colSpan={6} className="px-6 py-4">
               <div className="grid grid-cols-3 gap-8 text-xs">
@@ -283,14 +363,14 @@ export function Dashboard({ data, profile, onReset }: DashboardProps) {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-6">
-          <div className="glass-card p-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-6">
+          <div className="glass-card p-4 lg:p-5">
             <div className="flex justify-between items-start mb-4">
               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">DTI Health Meter</p>
               <Info className="w-3 h-3 text-slate-300" />
             </div>
             <div className="flex items-end gap-3 mb-3">
-              <span className="text-4xl font-black text-slate-800">{profile.dti}%</span>
+              <span className="text-3xl lg:text-4xl font-black text-slate-800">{profile.dti}%</span>
               <div className="flex flex-col mb-1.5">
                 <span className={cn("text-[8px] font-black uppercase px-2 py-0.5 rounded", 
                   profile.dti < 35 ? "bg-emerald-100 text-emerald-700" : 
@@ -317,14 +397,14 @@ export function Dashboard({ data, profile, onReset }: DashboardProps) {
             <div className="flex justify-between mt-2 text-[8px] font-black text-slate-400 uppercase">
               <span>0%</span>
               <span>35%</span>
-              <span>50%</span>
+              <span className="hidden sm:inline">50%</span>
               <span>100%</span>
             </div>
           </div>
-          <div className="glass-card p-5">
+          <div className="glass-card p-4 lg:p-5">
             <p className="text-[10px] font-bold text-slate-400 uppercase mb-4 tracking-widest">Max Monthly Liability</p>
             <div className="flex items-end gap-3 mb-2">
-              <span className="text-4xl font-black text-slate-800">{formatCurrency((data.monthlyIncome + (data.variableIncome / 12)) * 0.4)}</span>
+              <span className="text-3xl lg:text-4xl font-black text-slate-800">{formatCurrency((data.monthlyIncome + (data.variableIncome / 12)) * 0.4)}</span>
             </div>
             <p className="text-[10px] text-slate-400 font-medium">Standard 40% threshold calculated</p>
           </div>
@@ -417,7 +497,7 @@ export function Dashboard({ data, profile, onReset }: DashboardProps) {
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
-              <thead className="bg-slate-50/50">
+              <thead className="bg-slate-50/50 hidden md:table-header-group">
                 <tr>
                   <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Lender</th>
                   <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
@@ -435,7 +515,7 @@ export function Dashboard({ data, profile, onReset }: DashboardProps) {
                   <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-right">Action</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-slate-100 flex flex-col md:table-row-group">
                 {processedLenders.map((lender, i) => {
                   const emi = calculateEmi(data.loanRequirement.amount, lender.rate, lender.tenure);
                   return (

@@ -68,21 +68,28 @@ export function FinancialWizard({ onComplete }: WizardProps) {
   return (
     <div className="max-w-2xl mx-auto py-12 px-4">
       {/* Progress Header */}
-      <div className="flex justify-between mb-12">
+      <div className="flex justify-between items-center mb-8 lg:mb-12">
         {[1, 2, 3, 4, 5].map((i) => (
-          <div key={i} className="flex flex-col items-center gap-2">
+          <div key={i} className="flex flex-col items-center gap-2 relative">
             <div className={cn(
-              "step-indicator",
+              "step-indicator z-10",
               step >= i ? "bg-indigo-600 text-white" : "bg-slate-100 text-slate-400"
             )}>
-              {step > i ? <CheckCircle2 className="w-5 h-5" /> : i}
+              {step > i ? <CheckCircle2 className="w-4 h-4 sm:w-5 h-5" /> : i}
             </div>
             <span className={cn(
-              "text-[10px] uppercase tracking-wider font-bold",
-              step >= i ? "text-indigo-600" : "text-slate-400"
+              "text-[8px] sm:text-[10px] uppercase tracking-wider font-bold text-center",
+              step >= i ? "text-indigo-600" : "text-slate-400",
+              step !== i && "hidden sm:block" // Only show current step label on very small screens
             )}>
               {["Profile", "Income", "Expenses", "Debts", "Goal"][i-1]}
             </span>
+            {i < 5 && (
+              <div className={cn(
+                "absolute top-3 left-6 right-[-2.5rem] h-[2px] -z-0 hidden sm:block",
+                step > i ? "bg-indigo-600" : "bg-slate-100"
+              )} />
+            )}
           </div>
         ))}
       </div>
@@ -117,7 +124,7 @@ export function FinancialWizard({ onComplete }: WizardProps) {
               </label>
               <div className="space-y-2">
                 <span className="text-sm font-medium text-slate-700">Gender</span>
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   {['male', 'female', 'other'].map((g) => (
                     <button
                       key={g}
@@ -312,7 +319,7 @@ export function FinancialWizard({ onComplete }: WizardProps) {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <label className="block space-y-2">
                   <span className="text-sm font-medium text-slate-700">Tenure (Years)</span>
                   <select 

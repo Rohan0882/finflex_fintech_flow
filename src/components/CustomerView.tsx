@@ -211,116 +211,124 @@ export function CustomerView({ data, profile }: CustomerViewProps) {
         <div className="col-span-12 lg:col-span-8 space-y-8">
           <motion.div 
             whileHover={{ y: -5 }}
-            className={cn("p-10 relative overflow-hidden shadow-2xl", theme.primary, theme.text, theme.cardClass)}
+            className={cn("p-6 sm:p-10 relative overflow-hidden shadow-2xl", theme.primary, theme.text, theme.cardClass)}
           >
             {/* Theme Specific Decorative Elements */}
             {isMale && (
               <div className="absolute top-0 right-0 p-4 opacity-10">
-                <Target className="w-64 h-64 rotate-12" />
+                <Target className="w-48 h-48 sm:w-64 sm:h-64 rotate-12" />
               </div>
             )}
             {isFemale && (
-              <div className="absolute top-0 right-0 p-8">
-                <Heart className="w-12 h-12 text-pink-300 fill-pink-300 animate-bounce" />
+              <div className="absolute top-0 right-0 p-4 sm:p-8">
+                <Heart className="w-8 h-8 sm:w-12 sm:h-12 text-pink-300 fill-pink-300 animate-bounce" />
               </div>
             )}
 
-            <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-12">
-              <div className="space-y-8">
+            <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-8 sm:gap-12">
+              <div className="space-y-6 sm:space-y-8">
                 <div>
-                  <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-60 mb-2">Primary Sponsor</p>
-                  <div className="flex items-center gap-4">
-                    <div className={cn("w-12 h-12 rounded-xl flex items-center justify-center font-black text-2xl", isMale ? "bg-emerald-950 text-yellow-400" : isFemale ? "bg-white text-pink-500" : "bg-white text-slate-800")}>H</div>
+                  <p className="text-[8px] sm:text-[10px] font-black uppercase tracking-[0.2em] opacity-60 mb-2">Primary Sponsor</p>
+                  <div className="flex items-center gap-3 sm:gap-4">
+                    <div className={cn("w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center font-black text-xl sm:text-2xl", isMale ? "bg-emerald-950 text-yellow-400" : isFemale ? "bg-white text-pink-500" : "bg-white text-slate-800")}>H</div>
                     <div>
-                      <span className="text-2xl font-black block leading-none">{activeLoan.lender}</span>
-                      <span className="text-[10px] font-bold uppercase tracking-widest opacity-60">{activeLoan.loanType}</span>
+                      <span className="text-xl sm:text-2xl font-black block leading-none">{activeLoan.lender}</span>
+                      <span className="text-[8px] sm:text-[10px] font-bold uppercase tracking-widest opacity-60">{activeLoan.loanType}</span>
                     </div>
                   </div>
                 </div>
                 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <p className="text-[10px] font-black uppercase tracking-widest opacity-60">{theme.label1}</p>
-                    <p className={cn("text-3xl font-black", theme.accent)}>{formatCurrency(activeLoan.outstanding)}</p>
+                    <p className="text-[8px] sm:text-[10px] font-black uppercase tracking-widest opacity-60">{theme.label1}</p>
+                    <p className={cn("text-2xl sm:text-3xl font-black", theme.accent)}>{formatCurrency(activeLoan.outstanding)}</p>
                   </div>
                   <div>
-                    <p className="text-[10px] font-black uppercase tracking-widest opacity-60">{theme.label2}</p>
-                    <p className="text-3xl font-black">{formatCurrency(activeLoan.emi)}</p>
+                    <p className="text-[8px] sm:text-[10px] font-black uppercase tracking-widest opacity-60">{theme.label2}</p>
+                    <p className="text-2xl sm:text-3xl font-black">{formatCurrency(activeLoan.emi)}</p>
                   </div>
                 </div>
 
                 <div className="space-y-4">
                   <div className="flex justify-between items-end">
-                    <p className="text-[10px] font-black uppercase tracking-widest opacity-60">{theme.label3}</p>
-                    <span className="text-[10px] font-mono font-bold">{activeLoan.paidMonths}/{activeLoan.tenure} {isMale ? "Overs" : isFemale ? "Steps" : "Months"}</span>
+                    <p className="text-[8px] sm:text-[10px] font-black uppercase tracking-widest opacity-60">{theme.label3}</p>
+                    <span className="text-[8px] sm:text-[10px] font-mono font-bold">{activeLoan.paidMonths}/{activeLoan.tenure} {isMale ? "Overs" : isFemale ? "Steps" : "Months"}</span>
                   </div>
-                  <div className={cn("relative h-6 group/progress flex items-center gap-[1px]", theme.secondary, "rounded-lg p-1 overflow-visible")}>
-                    {Array.from({ length: activeLoan.tenure }).map((_, i) => {
-                      const isPaid = i < activeLoan.paidMonths;
-                      const cumulativePaid = (i + 1) * activeLoan.emi;
-                      
-                      return (
-                        <div 
-                          key={i}
-                          className={cn(
-                            "h-full flex-1 first:rounded-l-sm last:rounded-r-sm transition-all duration-300 relative group/segment",
-                            isPaid 
-                              ? (isMale ? "bg-yellow-400" : isFemale ? "bg-white" : "bg-blue-500") 
-                              : "bg-white/10 hover:bg-white/20"
-                          )}
-                        >
-                          {/* Tooltip */}
-                          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 pointer-events-none opacity-0 group-hover/segment:opacity-100 transition-opacity z-50">
-                            <div className={cn(
-                              "px-3 py-1.5 rounded-lg text-[9px] font-black whitespace-nowrap shadow-xl border",
-                              isMale ? "bg-emerald-950 text-yellow-400 border-emerald-800" : 
-                              isFemale ? "bg-pink-500 text-white border-pink-400" : 
-                              "bg-slate-900 text-white border-slate-800"
-                            )}>
-                              <p className="uppercase tracking-tighter opacity-70">
-                                {isPaid ? (isMale ? "Run Scored" : "Magic Gained") : (isMale ? "Target Run" : "Dream Cost")}
-                              </p>
-                              <p className="text-sm">{formatCurrency(activeLoan.emi)}</p>
-                              {isPaid && (
-                                <p className="mt-1 pt-1 border-t border-white/10 text-[8px] opacity-60">
-                                  Total: {formatCurrency(cumulativePaid)}
+                  {/* Simplified mobile progress or condensed desktop progress */}
+                  <div className={cn("relative h-4 sm:h-6 group/progress flex items-center gap-[1px]", theme.secondary, "rounded-lg p-1 overflow-hidden sm:overflow-visible")}>
+                    {activeLoan.tenure > 60 ? (
+                      // Fallback for very long tenures
+                      <div className="w-full h-full rounded-sm overflow-hidden flex">
+                        <div className={cn("h-full", isMale ? "bg-yellow-400" : isFemale ? "bg-white" : "bg-blue-500")} style={{ width: `${(activeLoan.paidMonths / activeLoan.tenure) * 100}%` }} />
+                      </div>
+                    ) : (
+                      Array.from({ length: activeLoan.tenure }).map((_, i) => {
+                        const isPaid = i < activeLoan.paidMonths;
+                        const cumulativePaid = (i + 1) * activeLoan.emi;
+                        
+                        return (
+                          <div 
+                            key={i}
+                            className={cn(
+                              "h-full flex-1 first:rounded-l-sm last:rounded-r-sm transition-all duration-300 relative group/segment",
+                              isPaid 
+                                ? (isMale ? "bg-yellow-400" : isFemale ? "bg-white" : "bg-blue-500") 
+                                : "bg-white/10 hover:bg-white/20"
+                            )}
+                          >
+                            {/* Tooltip - Hide on touch devices or small screens */}
+                            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 pointer-events-none opacity-0 lg:group-hover/segment:opacity-100 transition-opacity z-50">
+                              <div className={cn(
+                                "px-3 py-1.5 rounded-lg text-[9px] font-black whitespace-nowrap shadow-xl border",
+                                isMale ? "bg-emerald-950 text-yellow-400 border-emerald-800" : 
+                                isFemale ? "bg-pink-500 text-white border-pink-400" : 
+                                "bg-slate-900 text-white border-slate-800"
+                              )}>
+                                <p className="uppercase tracking-tighter opacity-70">
+                                  {isPaid ? (isMale ? "Run Scored" : "Magic Gained") : (isMale ? "Target Run" : "Dream Cost")}
                                 </p>
-                              )}
+                                <p className="text-sm">{formatCurrency(activeLoan.emi)}</p>
+                                {isPaid && (
+                                  <p className="mt-1 pt-1 border-t border-white/10 text-[8px] opacity-60">
+                                    Total: {formatCurrency(cumulativePaid)}
+                                  </p>
+                                )}
+                              </div>
+                              <div className={cn(
+                                "w-2 h-2 rotate-45 mx-auto -mt-1 border-r border-b",
+                                isMale ? "bg-emerald-950 border-emerald-800" : 
+                                isFemale ? "bg-pink-500 border-pink-400" : 
+                                "bg-slate-900 border-slate-800"
+                              )}></div>
                             </div>
-                            <div className={cn(
-                              "w-2 h-2 rotate-45 mx-auto -mt-1 border-r border-b",
-                              isMale ? "bg-emerald-950 border-emerald-800" : 
-                              isFemale ? "bg-pink-500 border-pink-400" : 
-                              "bg-slate-900 border-slate-800"
-                            )}></div>
                           </div>
-                        </div>
-                      );
-                    })}
+                        );
+                      })
+                    )}
                   </div>
                 </div>
               </div>
 
-              <div className={cn("rounded-3xl p-8 border flex flex-col justify-between", isMale ? "bg-emerald-950 border-emerald-800" : isFemale ? "bg-white/20 border-white/30 backdrop-blur-md" : "bg-white/5 border-white/10")}>
+              <div className={cn("rounded-3xl p-6 sm:p-8 border flex flex-col justify-between", isMale ? "bg-emerald-950 border-emerald-800" : isFemale ? "bg-white/20 border-white/30 backdrop-blur-md" : "bg-white/5 border-white/10")}>
                 <div>
                   <div className="flex justify-between items-start mb-4">
-                    <h4 className="text-sm font-black flex items-center gap-2 uppercase">
+                    <h4 className="text-xs sm:text-sm font-black flex items-center gap-2 uppercase">
                       <Clock className={cn("w-5 h-5", isMale ? "text-yellow-400" : isFemale ? "text-pink-100" : "text-orange-400")} /> 
                       {isMale ? "Next Over" : isFemale ? "Royal Ball" : "Next Payment"}
                     </h4>
-                    <span className={cn("text-[10px] px-3 py-1 rounded-full font-black uppercase", isMale ? "bg-yellow-400 text-emerald-950" : isFemale ? "bg-white text-pink-500" : "bg-emerald-500 text-white")}>
+                    <span className={cn("text-[8px] sm:text-[10px] px-2 sm:px-3 py-1 rounded-full font-black uppercase", isMale ? "bg-yellow-400 text-emerald-950" : isFemale ? "bg-white text-pink-500" : "bg-emerald-500 text-white")}>
                       Automated
                     </span>
                   </div>
-                  <p className="text-4xl font-black tracking-tighter">{activeLoan.nextEmiDate}</p>
+                  <p className="text-2xl sm:text-4xl font-black tracking-tighter">{activeLoan.nextEmiDate}</p>
                   <div className="flex items-center justify-between mt-2">
-                    <span className={cn("text-[10px] px-3 py-1 rounded-full font-black uppercase", theme.statusColor)}>
+                    <span className={cn("text-[8px] sm:text-[10px] px-2 sm:px-3 py-1 rounded-full font-black uppercase", theme.statusColor)}>
                       {getMatchStatus(activeLoan.status)}
                     </span>
                   </div>
                 </div>
                 <button className={cn(
-                  "w-full mt-8 py-4 font-black text-sm uppercase tracking-widest transition-all shadow-2xl",
+                  "w-full mt-6 sm:mt-8 py-3 sm:py-4 font-black text-xs sm:text-sm uppercase tracking-widest transition-all shadow-2xl",
                   isMale ? "bg-emerald-600 hover:bg-emerald-500 text-white rounded-none" : 
                   isFemale ? "bg-white text-pink-500 rounded-full hover:scale-95" : 
                   "bg-blue-600 rounded-xl"
@@ -390,7 +398,7 @@ export function CustomerView({ data, profile }: CustomerViewProps) {
             </div>
           </motion.div>
 
-          <div className={cn("p-8 space-y-6", isMale ? "bg-white border-4 border-emerald-900 rounded-none" : isFemale ? "bg-white rounded-[2rem] border-4 border-pink-100" : "glass-card")}>
+          <div className={cn("p-6 sm:p-8 space-y-6", isMale ? "bg-white border-4 border-emerald-900 rounded-none" : isFemale ? "bg-white rounded-[2rem] border-4 border-pink-100" : "glass-card")}>
             <h4 className={cn("text-xs font-black uppercase tracking-widest", isMale ? "text-emerald-900" : isFemale ? "text-pink-400" : "text-slate-400")}>
               {isMale ? "Locker Room Tools" : isFemale ? "Vanity Kit" : "Loan Tools"}
             </h4>
@@ -409,14 +417,14 @@ export function CustomerView({ data, profile }: CustomerViewProps) {
                   key={i} 
                   onClick={tool.onClick}
                   className={cn(
-                    "p-4 flex items-center gap-4 cursor-pointer transition-all border group",
+                    "p-3 sm:p-4 flex items-center gap-3 sm:gap-4 cursor-pointer transition-all border group",
                     isMale ? "border-emerald-100 hover:bg-emerald-900 hover:text-white rounded-none" : 
                     isFemale ? "border-pink-50 hover:bg-pink-50 rounded-2xl" : 
                     "rounded-xl border-slate-100"
                   )}
                 >
                   <div className={cn(
-                    "w-10 h-10 flex items-center justify-center rounded-lg transition-all",
+                    "w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-lg transition-all shrink-0",
                     isMale ? "bg-emerald-50 text-emerald-600 group-hover:bg-yellow-400 group-hover:text-emerald-950" : 
                     isFemale ? "bg-pink-50 text-pink-500" : 
                     "bg-slate-100"
@@ -424,8 +432,8 @@ export function CustomerView({ data, profile }: CustomerViewProps) {
                     {tool.icon}
                   </div>
                   <div>
-                    <p className="text-[11px] font-black uppercase tracking-wider">{tool.label}</p>
-                    <p className="text-[9px] opacity-60 font-bold">{tool.desc}</p>
+                    <p className="text-[10px] sm:text-[11px] font-black uppercase tracking-wider">{tool.label}</p>
+                    <p className="text-[8px] sm:text-[9px] opacity-60 font-bold">{tool.desc}</p>
                   </div>
                 </div>
               ))}
@@ -466,7 +474,7 @@ export function CustomerView({ data, profile }: CustomerViewProps) {
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
               className={cn(
-                "relative w-full max-w-lg p-8 shadow-2xl",
+                "relative w-full max-w-lg p-6 sm:p-8 shadow-2xl overflow-y-auto max-h-[90vh]",
                 isMale ? "bg-emerald-900 text-white rounded-none border-4 border-yellow-400" : 
                 isFemale ? "bg-white rounded-[3rem] border-4 border-pink-200" : 
                 "bg-white rounded-2xl"
@@ -475,22 +483,22 @@ export function CustomerView({ data, profile }: CustomerViewProps) {
               {topUpState.status === 'idle' && (
                 <div className="space-y-6">
                   <div className="flex items-center gap-4">
-                    <div className={cn("w-12 h-12 rounded-full flex items-center justify-center", isMale ? "bg-yellow-400 text-emerald-950" : "bg-pink-100 text-pink-500")}>
-                      <ArrowUpRight className="w-6 h-6" />
+                    <div className={cn("w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center shrink-0", isMale ? "bg-yellow-400 text-emerald-950" : "bg-pink-100 text-pink-500")}>
+                      <ArrowUpRight className="w-5 h-5 sm:w-6 h-6" />
                     </div>
                     <div>
-                      <h3 className="text-xl font-black uppercase tracking-tighter">
+                      <h3 className="text-lg sm:text-xl font-black uppercase tracking-tighter">
                         {isMale ? "Request Powerplay Funds" : isFemale ? "Whisk Up More Magic" : "Apply for Top-up"}
                       </h3>
-                      <p className="text-sm opacity-60 font-bold">
+                      <p className="text-xs sm:text-sm opacity-60 font-bold">
                         {isMale ? "Add weight to your batting lineup." : "Expand your королевская сокровищница."}
                       </p>
                     </div>
                   </div>
 
-                  <div className={cn("p-6 rounded-2xl border", isMale ? "bg-emerald-950 border-emerald-800" : "bg-slate-50 border-slate-100")}>
+                  <div className={cn("p-4 sm:p-6 rounded-2xl border", isMale ? "bg-emerald-950 border-emerald-800" : "bg-slate-50 border-slate-100")}>
                     <p className="text-[10px] font-black uppercase tracking-widest opacity-60 mb-2">Maximum Eligibility</p>
-                    <p className={cn("text-4xl font-black", theme.accent)}>{formatCurrency(topUpState.amount)}</p>
+                    <p className={cn("text-3xl sm:text-4xl font-black", theme.accent)}>{formatCurrency(topUpState.amount)}</p>
                     <div className="mt-4 flex items-center gap-2">
                        <ShieldCheck className="w-4 h-4 text-emerald-400" />
                        <p className="text-[10px] font-bold">Based on your {profile?.score} CIBIL Score</p>
@@ -501,7 +509,7 @@ export function CustomerView({ data, profile }: CustomerViewProps) {
                     <button 
                       onClick={handleApplyTopUp}
                       className={cn(
-                        "w-full py-4 font-black uppercase text-sm tracking-[0.2em] transition-all shadow-xl",
+                        "w-full py-3 sm:py-4 font-black uppercase text-xs sm:text-sm tracking-[0.2em] transition-all shadow-xl",
                         isMale ? "bg-yellow-400 text-emerald-950 hover:bg-white" : 
                         isFemale ? "bg-pink-500 text-white rounded-full hover:scale-105" : 
                         "btn-primary"
@@ -589,22 +597,22 @@ export function CustomerView({ data, profile }: CustomerViewProps) {
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
               className={cn(
-                "relative w-full max-w-md p-8 shadow-2xl",
+                "relative w-full max-w-md p-6 sm:p-8 shadow-2xl overflow-y-auto max-h-[90vh]",
                 isMale ? "bg-emerald-900 text-white rounded-none border-4 border-yellow-400" : 
                 isFemale ? "bg-white rounded-[3rem] border-4 border-pink-200 text-slate-800" : 
                 "bg-white rounded-2xl"
               )}
             >
-              <div className="flex justify-between items-center mb-8">
-                <h3 className="text-xl font-black uppercase tracking-tighter">
-                  {isMale ? "Select Your Emblem" : isFemale ? "Choose Your Trinket" : "Select Dashboard Icon"}
+              <div className="flex justify-between items-center mb-6 sm:mb-8">
+                <h3 className="text-lg sm:text-xl font-black uppercase tracking-tighter">
+                  {isMale ? "Select Emblem" : isFemale ? "Choose Trinket" : "Dashboard Icon"}
                 </h3>
-                <button onClick={() => setIsIconModalOpen(false)} className="opacity-50 hover:opacity-100 transition-opacity">
+                <button onClick={() => setIsIconModalOpen(false)} className="opacity-50 hover:opacity-100 transition-opacity p-2">
                   <X className="w-6 h-6" />
                 </button>
               </div>
 
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
                 {(isMale ? personaIcons.male : personaIcons.female).map((item) => {
                   const Icon = item.icon;
                   return (
@@ -615,7 +623,7 @@ export function CustomerView({ data, profile }: CustomerViewProps) {
                         setIsIconModalOpen(false);
                       }}
                       className={cn(
-                        "p-6 flex flex-col items-center gap-3 transition-all border-2",
+                        "p-4 sm:p-6 flex flex-col items-center gap-2 sm:gap-3 transition-all border-2",
                         selectedIconId === item.id 
                           ? (isMale ? "border-yellow-400 bg-emerald-800" : "border-pink-500 bg-pink-50")
                           : (isMale ? "border-emerald-800 hover:bg-emerald-800/50" : "border-slate-50 hover:bg-slate-50"),
@@ -623,12 +631,12 @@ export function CustomerView({ data, profile }: CustomerViewProps) {
                       )}
                     >
                       <Icon className={cn(
-                        "w-8 h-8",
+                        "w-6 h-6 sm:w-8 h-8",
                         selectedIconId === item.id 
                           ? (isMale ? "text-yellow-400" : "text-pink-500")
                           : (isMale ? "text-emerald-400" : "text-slate-400")
                       )} />
-                      <span className="text-[10px] font-black uppercase tracking-widest">{item.label}</span>
+                      <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest">{item.label}</span>
                     </button>
                   );
                 })}
