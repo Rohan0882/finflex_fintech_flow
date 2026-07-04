@@ -12,7 +12,9 @@ import {
   Legend,
   AreaChart,
   Area,
-  CartesianGrid
+  CartesianGrid,
+  LineChart,
+  Line
 } from 'recharts';
 import { 
   CheckCircle2, 
@@ -228,6 +230,7 @@ export function Dashboard({ data, profile, onReset, viewMode = 'dashboard', onNa
   // Sliders state for 'insights' mode
   const [simulatedAmount, setSimulatedAmount] = React.useState<number>(data.loanRequirement.amount);
   const [simulatedTenure, setSimulatedTenure] = React.useState<number>(data.loanRequirement.tenureYears);
+  const [prepaymentAllocationPercent, setPrepaymentAllocationPercent] = React.useState<number>(50);
 
   // Stress-testing scenario state for 'risk' mode
   const [stressScenario, setStressScenario] = React.useState<'baseline' | 'rate' | 'income' | 'liability'>('baseline');
@@ -312,6 +315,125 @@ export function Dashboard({ data, profile, onReset, viewMode = 'dashboard', onNa
     const rateToUse = isNaN(averageRate) || averageRate <= 0 ? 8.5 : averageRate;
     return calculateAmortization(simulatedAmount, rateToUse, simulatedTenure);
   }, [simulatedAmount, averageRate, simulatedTenure]);
+
+  // Interest savings projection based on prepayment from surplus
+  const interestSavingsData = React.useMemo(() => {
+    if (simulatedAmount <= 0 || simulatedTenure <= 0) return [];
+    const surplusVal = profile.disposableIncome > 0 ? profile.disposableIncome : 0;
+    const prepaymentAmount = Math.round(surplusVal * (prepaymentAllocationPercent / 100));
+    
+    const rateToUse = isNaN(averageRate) || averageRate <= 0 ? 8.5 : averageRate;
+    const monthlyRate = rateToUse / 12 / 100;
+    const totalMonths = simulatedTenure * 12;
+    
+    // Standard monthly payment (EMI)
+    const emi = (simulatedAmount * monthlyRate * Math.pow(1 + monthlyRate, totalMonths)) / (Math.pow(1 + monthlyRate, totalMonths) - 1);
+    
+    let standardRemaining = simulatedAmount;
+    let standardCumulativeInterest = 0;
+    
+    let prepayRemaining = simulatedAmount;
+    let prepayCumulativeInterest = 0;
+    
+    const dataPoints = [];
+    
+    // Starting point (Year 0)
+    dataPoints.push({
+      name: 'Start',
+      year: 0,
+      standardInterest: 0,
+      prepayInterest: 0,
+      savings: 0,
+    });
+    
+    for (let m = 1; m <= totalMonths; m++) {
+      // 1. Standard schedule
+      if (standardRemaining > 0) {
+        const interest = standardRemaining * monthlyRate;
+        const principalPay = Math.min(standardRemaining, emi - interest);
+        standardRemaining = Math.max(0, standardRemaining - principalPay);
+        standardCumulativeInterest += interest;
+      }
+      
+      // 2. Prepayment schedule
+      if (prepayRemaining > 0) {
+        const interest = prepayRemaining * monthlyRate;
+        const totalPayment = emi + prepaymentAmount;
+        const principalPay = Math.min(prepayRemaining, totalPayment - interest);
+        prepayRemaining = Math.max(0, prepayRemaining - principalPay);
+        prepayCumulativeInterest += interest;
+      }
+      
+      // Save year-by-year points
+      if (m % 12 === 0 || m === totalMonths) {
+        const yearNum = Math.ceil(m / 12);
+        const savings = Math.max(0, standardCumulativeInterest - prepayCumulativeInterest);
+        dataPoints.push({
+          name: `Yr ${yearNum}`,
+          year: yearNum,
+          standardInterest: Math.round(standardCumulativeInterest),
+          prepayInterest: Math.round(prepayCumulativeInterest),
+          savings: Math.round(savings),
+        });
+      }
+    }
+    
+    return dataPoints;
+  }, [simulatedAmount, averageRate, simulatedTenure, profile.disposableIncome, prepaymentAllocationPercent]);
+
+  // Prepayment statistics for dashboard insights
+  const prepaymentStats = React.useMemo(() => {
+    if (simulatedAmount <= 0 || simulatedTenure <= 0) return { monthsSaved: 0, interestSaved: 0, payoffMonths: 0, standardTotalInterest: 0, prepayTotalInterest: 0 };
+    const surplusVal = profile.disposableIncome > 0 ? profile.disposableIncome : 0;
+    const prepaymentAmount = Math.round(surplusVal * (prepaymentAllocationPercent / 100));
+    
+    const rateToUse = isNaN(averageRate) || averageRate <= 0 ? 8.5 : averageRate;
+    const monthlyRate = rateToUse / 12 / 100;
+    const totalMonths = simulatedTenure * 12;
+    
+    const emi = (simulatedAmount * monthlyRate * Math.pow(1 + monthlyRate, totalMonths)) / (Math.pow(1 + monthlyRate, totalMonths) - 1);
+    
+    let standardRemaining = simulatedAmount;
+    let standardTotalInterest = 0;
+    
+    let prepayRemaining = simulatedAmount;
+    let prepayTotalInterest = 0;
+    let prepayPayoffMonth = totalMonths;
+    let prepayPaidOff = false;
+    
+    for (let m = 1; m <= totalMonths; m++) {
+      if (standardRemaining > 0) {
+        const interest = standardRemaining * monthlyRate;
+        const principalPay = Math.min(standardRemaining, emi - interest);
+        standardRemaining = Math.max(0, standardRemaining - principalPay);
+        standardTotalInterest += interest;
+      }
+      
+      if (prepayRemaining > 0) {
+        const interest = prepayRemaining * monthlyRate;
+        const totalPayment = emi + prepaymentAmount;
+        const principalPay = Math.min(prepayRemaining, totalPayment - interest);
+        prepayRemaining = Math.max(0, prepayRemaining - principalPay);
+        prepayTotalInterest += interest;
+        
+        if (prepayRemaining <= 0 && !prepayPaidOff) {
+          prepayPayoffMonth = m;
+          prepayPaidOff = true;
+        }
+      }
+    }
+    
+    const monthsSaved = totalMonths - prepayPayoffMonth;
+    const interestSaved = Math.max(0, standardTotalInterest - prepayTotalInterest);
+    
+    return {
+      monthsSaved,
+      interestSaved: Math.round(interestSaved),
+      payoffMonths: prepayPayoffMonth,
+      standardTotalInterest: Math.round(standardTotalInterest),
+      prepayTotalInterest: Math.round(prepayTotalInterest)
+    };
+  }, [simulatedAmount, averageRate, simulatedTenure, profile.disposableIncome, prepaymentAllocationPercent]);
 
   // Savings growth projection dataset based on Surplus
   const savingsProjectionData = React.useMemo(() => {
@@ -983,6 +1105,139 @@ export function Dashboard({ data, profile, onReset, viewMode = 'dashboard', onNa
                 </ResponsiveContainer>
               </div>
             </div>
+
+            {/* Projected Interest Savings Model Line Chart */}
+            <motion.div 
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4 }}
+              className="glass-card p-6 bg-white space-y-6"
+            >
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                <div>
+                  <h3 className="text-md font-black text-slate-800 tracking-tight flex items-center gap-2">
+                    <TrendingUp className="w-5 h-5 text-indigo-600 animate-pulse" />
+                    Projected Interest Savings Trajectory
+                  </h3>
+                  <p className="text-xs text-slate-500 mt-1">
+                    Visualize how prepaying a portion of your monthly surplus reduces your cumulative interest burden.
+                  </p>
+                </div>
+                {profile.disposableIncome > 0 && (
+                  <div className="flex items-center gap-2 font-mono shrink-0">
+                    <span className="text-[10px] font-black uppercase text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded">
+                      {prepaymentAllocationPercent}% Surplus Prepayment
+                    </span>
+                    <span className="text-sm font-black text-slate-800">
+                      +{formatCurrency(Math.round(profile.disposableIncome * (prepaymentAllocationPercent / 100)))}/mo
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              {profile.disposableIncome <= 0 ? (
+                <div className="p-4 rounded-xl bg-slate-50 border border-slate-100 flex gap-3 items-center text-xs text-slate-500">
+                  <Info className="w-5 h-5 text-indigo-500 shrink-0" />
+                  <span>No disposable surplus available. Adjust your income or expenses in the previous step to simulate accelerated savings.</span>
+                </div>
+              ) : (
+                <>
+                  {/* Slider to configure prepayment allocation */}
+                  <div className="space-y-2 p-4 rounded-xl bg-slate-50 border border-slate-100">
+                    <div className="flex justify-between text-[10px] font-black uppercase text-slate-500">
+                      <span>Prepayment Slider</span>
+                      <span>Allocating {prepaymentAllocationPercent}% of {formatCurrency(profile.disposableIncome)} Surplus</span>
+                    </div>
+                    <input
+                      type="range"
+                      min="10"
+                      max="100"
+                      step="10"
+                      className="w-full accent-indigo-600 h-1.5 bg-slate-200 rounded-full cursor-pointer"
+                      value={prepaymentAllocationPercent}
+                      onChange={(e) => setPrepaymentAllocationPercent(Number(e.target.value))}
+                    />
+                    <div className="flex justify-between text-[9px] text-slate-400 font-bold">
+                      <span>10% ({formatCurrency(profile.disposableIncome * 0.1)}/mo)</span>
+                      <span>50% ({formatCurrency(profile.disposableIncome * 0.5)}/mo)</span>
+                      <span>100% ({formatCurrency(profile.disposableIncome)}/mo)</span>
+                    </div>
+                  </div>
+
+                  {/* Summary Bento KPI Row */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div className="p-4 rounded-xl bg-indigo-50/40 border border-indigo-100/50">
+                      <span className="text-[9px] font-black text-indigo-600 uppercase tracking-widest block mb-1">Total Savings</span>
+                      <p className="text-xl font-mono font-black text-indigo-600">
+                        {formatCurrency(prepaymentStats.interestSaved)}
+                      </p>
+                      <p className="text-[9px] text-slate-500 font-bold mt-1">In avoided interest payments</p>
+                    </div>
+
+                    <div className="p-4 rounded-xl bg-emerald-50/40 border border-emerald-100/50">
+                      <span className="text-[9px] font-black text-emerald-600 uppercase tracking-widest block mb-1">Time Saved</span>
+                      <p className="text-xl font-mono font-black text-emerald-600">
+                        {prepaymentStats.monthsSaved} Months
+                      </p>
+                      <p className="text-[9px] text-slate-500 font-bold mt-1">
+                        Cleared in {Math.round(prepaymentStats.payoffMonths / 12 * 10) / 10} yrs instead of {simulatedTenure} yrs
+                      </p>
+                    </div>
+
+                    <div className="p-4 rounded-xl bg-amber-50/40 border border-amber-100/50">
+                      <span className="text-[9px] font-black text-amber-600 uppercase tracking-widest block mb-1">Interest Paid Reduction</span>
+                      <p className="text-xl font-mono font-black text-amber-600">
+                        -{Math.round((prepaymentStats.interestSaved / (prepaymentStats.standardTotalInterest || 1)) * 100)}%
+                      </p>
+                      <p className="text-[9px] text-slate-500 font-bold mt-1">Interest load cut significantly</p>
+                    </div>
+                  </div>
+
+                  {/* Line Chart Component */}
+                  <div className="h-64 w-full bg-slate-50/50 border border-slate-100 rounded-xl p-4">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart
+                        data={interestSavingsData}
+                        margin={{ top: 10, right: 15, left: 15, bottom: 0 }}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                        <XAxis 
+                          dataKey="name" 
+                          stroke="#94a3b8" 
+                          fontSize={9} 
+                          fontWeight="bold"
+                          tickLine={false} 
+                          axisLine={false}
+                        />
+                        <YAxis 
+                          stroke="#94a3b8" 
+                          fontSize={9} 
+                          fontWeight="bold"
+                          tickLine={false} 
+                          axisLine={false}
+                          tickFormatter={(val) => `₹${val / 1000}k`}
+                        />
+                        <ReTooltip 
+                          formatter={(value) => [formatCurrency(value as number), 'Cumulative Interest Saved']}
+                          contentStyle={{ background: "#0f172a", border: "none", borderRadius: "12px", color: "#fff", fontSize: "11px", fontWeight: "bold" }}
+                          labelStyle={{ color: "#94a3b8", fontSize: "10px", marginBottom: "4px" }}
+                          labelFormatter={(label) => `Timeline: ${label}`}
+                        />
+                        <Line 
+                          name="Cumulative Savings (INR)"
+                          type="monotone" 
+                          dataKey="savings" 
+                          stroke="#6366f1" 
+                          strokeWidth={3}
+                          dot={{ r: 4, strokeWidth: 2, fill: "#fff" }}
+                          activeDot={{ r: 6 }}
+                        />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
+                </>
+              )}
+            </motion.div>
 
             <div className="glass-card overflow-hidden">
               <div className="p-6 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
