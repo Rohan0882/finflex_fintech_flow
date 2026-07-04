@@ -30,7 +30,8 @@ import {
   Info,
   PiggyBank,
   Coins,
-  ArrowUpRight
+  ArrowUpRight,
+  Printer
 } from 'lucide-react';
 import { FinancialData, RiskCategory, RiskProfile } from '../types';
 import { calculateEmi, formatCurrency, calculateAmortization } from '../utils/finance';
@@ -536,6 +537,26 @@ export function Dashboard({ data, profile, onReset, viewMode = 'dashboard', onNa
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
+      
+      {/* Print Report Global Action Bar */}
+      <div className="no-print flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-sm transition-all">
+        <div className="flex items-center gap-3">
+          <div className="p-2.5 bg-blue-50 dark:bg-blue-950/30 rounded-xl">
+            <Printer className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+          </div>
+          <div>
+            <h3 className="text-sm font-black text-slate-800 dark:text-white">Official Statement Generator</h3>
+            <p className="text-[10px] text-slate-500 dark:text-slate-400">Generate a print-ready PDF of the core financial assessments, schedules, and charts.</p>
+          </div>
+        </div>
+        <button
+          onClick={() => window.print()}
+          className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white font-black text-xs uppercase tracking-wider px-5 py-2.5 rounded-xl transition-all shadow-md shadow-blue-200 dark:shadow-none flex items-center justify-center gap-2 cursor-pointer active:scale-95"
+        >
+          <Printer className="w-3.5 h-3.5" />
+          <span>Print Report</span>
+        </button>
+      </div>
       
       {/* RENDER MODE 1: EXECUTIVE LEAD DASHBOARD */}
       {viewMode === 'dashboard' && (

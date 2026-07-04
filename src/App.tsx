@@ -131,7 +131,7 @@ export default function App() {
   return (
     <div className="flex h-screen overflow-hidden bg-bg-page dark:bg-slate-950 select-none flex-col lg:flex-row transition-colors duration-200">
       {/* Mobile Top Nav */}
-      <div className="lg:hidden h-16 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-4 sticky top-0 z-40 w-full shrink-0">
+      <div className="lg:hidden h-16 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-4 sticky top-0 z-40 w-full shrink-0 no-print">
         <div className="flex items-center gap-2">
           <div className="w-7 h-7 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-sm">L</div>
           <h1 className="text-lg font-bold tracking-tight text-slate-950 dark:text-white">Rohan Kumar (LoanSphere)</h1>
@@ -243,7 +243,7 @@ export default function App() {
             </div>
 
           </div>
-          <div className="flex items-center gap-4 w-full lg:w-auto">
+          <div className="flex items-center gap-4 w-full lg:w-auto no-print">
              <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 hidden xl:block uppercase tracking-widest whitespace-nowrap">
                Real-time Simulation Active
              </span>
@@ -317,7 +317,7 @@ export default function App() {
         </main>
 
         {/* Footer Rails */}
-        <footer className="min-h-10 lg:h-10 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 px-4 lg:px-8 py-2 flex flex-col lg:flex-row items-center justify-between text-[8px] lg:text-[10px] text-slate-400 dark:text-slate-500 font-medium gap-2 lg:gap-0 whitespace-nowrap overflow-x-hidden transition-colors duration-200">
+        <footer className="min-h-10 lg:h-10 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 px-4 lg:px-8 py-2 flex flex-col lg:flex-row items-center justify-between text-[8px] lg:text-[10px] text-slate-400 dark:text-slate-500 font-medium gap-2 lg:gap-0 whitespace-nowrap overflow-x-hidden transition-colors duration-200 no-print">
           <div className="flex gap-4 lg:gap-6 uppercase tracking-widest">
             <span>Status: <span className="text-emerald-600 dark:text-emerald-400 font-bold uppercase">MVP</span></span>
             <span>Version: v1.0.2</span>

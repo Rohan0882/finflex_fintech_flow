@@ -44,3 +44,48 @@
 .metric-value {
   @apply text-lg font-mono font-bold;
 }
+
+@media print {
+  body {
+    background: white !important;
+    color: #0f172a !important;
+  }
+  
+  /* Hide sidebars, navigation, toggles, buttons and inputs when printing */
+  aside,
+  nav,
+  .no-print,
+  button,
+  input[type="range"],
+  input,
+  select,
+  .print\:hidden {
+    display: none !important;
+  }
+
+  /* Force container layout to be full width with zero shadows */
+  main, 
+  .print-container {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 1.5cm !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+
+  /* Make glass cards look normal for printing */
+  .glass-card {
+    background: #ffffff !important;
+    border: 1px solid #cbd5e1 !important;
+    box-shadow: none !important;
+    page-break-inside: avoid;
+  }
+  
+  /* Ensure charts have high contrast black labels and are visible */
+  .recharts-cartesian-grid-horizontal line {
+    stroke: #e2e8f0 !important;
+  }
+}
+
