@@ -59,7 +59,7 @@ export default function App() {
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold">L</div>
-          <h1 className="text-xl font-bold tracking-tight text-slate-950 dark:text-white">RohanKumar(LoanSphere)_ABC</h1>
+          <h1 className="text-xl font-bold tracking-tight text-slate-950 dark:text-white">LoanSphere</h1>
         </div>
         <button onClick={() => setIsSidebarOpen(false)} className="lg:hidden p-2 text-slate-500 dark:text-slate-400">
           <X className="w-6 h-6" />
@@ -143,7 +143,7 @@ export default function App() {
       <div className="lg:hidden h-16 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-4 sticky top-0 z-40 w-full shrink-0 no-print">
         <div className="flex items-center gap-2">
           <div className="w-7 h-7 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-sm">L</div>
-          <h1 className="text-lg font-bold tracking-tight text-slate-950 dark:text-white">RohanKumar(LoanSphere)_ABC</h1>
+          <h1 className="text-lg font-bold tracking-tight text-slate-950 dark:text-white">LoanSphere</h1>
         </div>
         <div className="flex items-center gap-2">
           <button
