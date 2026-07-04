@@ -7,10 +7,11 @@ import React, { useState, useEffect } from 'react';
 import { FinancialWizard } from './components/Wizard';
 import { Dashboard } from './components/Dashboard';
 import { CustomerView } from './components/CustomerView';
+import { QuickEmiModal } from './components/QuickEmiModal';
 import { FinancialData, RiskProfile } from './types';
 import { calculateFinancials, formatCurrency } from './utils/finance';
 import { motion, AnimatePresence } from 'motion/react';
-import { Shield, Sparkles, LayoutDashboard, FileText, Activity, Layers, Settings, Menu, X, Lock, Sun, Moon } from 'lucide-react';
+import { Shield, Sparkles, LayoutDashboard, FileText, Activity, Layers, Settings, Menu, X, Lock, Sun, Moon, Calculator } from 'lucide-react';
 import { cn } from './lib/utils';
 
 export default function App() {
@@ -18,6 +19,7 @@ export default function App() {
   const [data, setData] = useState<FinancialData | null>(null);
   const [profile, setProfile] = useState<RiskProfile | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isEmiModalOpen, setIsEmiModalOpen] = useState(false);
   const [isDark, setIsDark] = useState(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('theme');
@@ -113,8 +115,15 @@ export default function App() {
         })}
       </div>
 
-      <div className="mt-auto pt-4 border-t border-slate-100 dark:border-slate-800/60">
-        <p className="text-[10px] text-slate-400 dark:text-slate-500 uppercase font-bold mb-3 tracking-widest px-2">Decision Context</p>
+      <div className="mt-auto pt-4 border-t border-slate-100 dark:border-slate-800/60 space-y-3">
+        <button 
+          onClick={() => setIsEmiModalOpen(true)}
+          className="w-full flex items-center gap-3 p-2.5 rounded-xl font-bold border border-indigo-100 dark:border-indigo-900/30 bg-indigo-50/40 dark:bg-indigo-950/20 text-indigo-700 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/35 transition-all cursor-pointer active:scale-95"
+        >
+          <Calculator className="w-4 h-4 text-indigo-500" />
+          <span className="text-xs uppercase tracking-wider">Quick EMI Calc</span>
+        </button>
+
         <div className="flex items-center gap-3 p-2 bg-white dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
           <div className="w-10 h-10 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center text-slate-400 dark:text-slate-500">
             <Settings className="w-5 h-5" />
@@ -137,6 +146,14 @@ export default function App() {
           <h1 className="text-lg font-bold tracking-tight text-slate-950 dark:text-white">RohanKumar(LoanSphere)_ABC</h1>
         </div>
         <div className="flex items-center gap-2">
+          <button
+            onClick={() => setIsEmiModalOpen(true)}
+            className="p-2 flex items-center justify-center rounded-full text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+            aria-label="Quick EMI Calculator"
+            title="Quick EMI Calculator"
+          >
+            <Calculator className="w-5 h-5 text-indigo-500" />
+          </button>
           <button
             onClick={() => setIsDark(!isDark)}
             className="p-2 flex items-center justify-center rounded-full text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
@@ -259,6 +276,14 @@ export default function App() {
              </button>
 
              <button 
+               onClick={() => setIsEmiModalOpen(true)} 
+               className="border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center justify-center gap-2 w-full lg:w-auto py-2 h-10 px-4 rounded-xl transition-all font-semibold text-xs uppercase tracking-wider cursor-pointer active:scale-95"
+             >
+               <Calculator className="w-4 h-4 text-indigo-500" /> 
+               <span className="whitespace-nowrap">Quick EMI</span>
+             </button>
+
+             <button 
               onClick={handleReset} 
               className="btn-primary flex items-center justify-center gap-2 w-full lg:w-auto py-2 h-10 px-4"
              >
@@ -329,6 +354,32 @@ export default function App() {
           </div>
         </footer>
       </div>
+
+      <QuickEmiModal 
+        isOpen={isEmiModalOpen}
+        onClose={() => setIsEmiModalOpen(false)}
+        activeLoan={data ? {
+          amount: data.loanRequirement.amount,
+          interestRate: data.loanRequirement.interestRate,
+          tenureYears: data.loanRequirement.tenureYears
+        } : null}
+        onApply={(amount, interestRate, tenureYears) => {
+          if (data) {
+            const updatedData: FinancialData = {
+              ...data,
+              loanRequirement: {
+                ...data.loanRequirement,
+                amount,
+                interestRate,
+                tenureYears
+              }
+            };
+            const updatedProfile = calculateFinancials(updatedData);
+            setData(updatedData);
+            setProfile(updatedProfile);
+          }
+        }}
+      />
     </div>
   );
 }
