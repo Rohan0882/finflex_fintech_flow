@@ -1,0 +1,46 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  
+  --color-brand: #2563eb;
+  --color-bg-page: #f3f4f6;
+  --color-border-subtle: #e2e8f0;
+}
+
+@variant dark (&:where(.dark, .dark *));
+
+@layer base {
+  body {
+    @apply bg-bg-page dark:bg-slate-950 text-slate-900 dark:text-slate-100 antialiased font-sans transition-colors duration-200;
+  }
+}
+
+.glass-card {
+  @apply bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm transition-all;
+}
+
+.btn-primary {
+  @apply bg-blue-600 text-white px-6 py-2.5 rounded-full font-semibold text-sm hover:bg-blue-700 transition-all active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none shadow-lg shadow-blue-200 dark:shadow-none;
+}
+
+.btn-secondary {
+  @apply bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 px-6 py-2.5 rounded-full font-semibold text-sm hover:bg-slate-50 dark:hover:bg-slate-700 transition-all active:scale-[0.98];
+}
+
+.input-field {
+  @apply w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-4 py-2.5 font-mono font-bold text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all;
+}
+
+.step-indicator {
+  @apply w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold transition-all;
+}
+
+.metric-label {
+  @apply text-[10px] uppercase text-slate-400 dark:text-slate-500 font-bold tracking-wider;
+}
+
+.metric-value {
+  @apply text-lg font-mono font-bold;
+}

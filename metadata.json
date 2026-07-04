@@ -1,0 +1,11 @@
+{
+  "name": "LoanSphere",
+  "description": "Comprehensive loan intelligence and repayment tracking platform.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API",
+    "Financial modeling",
+    "Data visualization",
+    "Risk assessment"
+  ]
+}
